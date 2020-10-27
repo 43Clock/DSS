@@ -1,0 +1,65 @@
+Cenário 1:
+    Sistema
+    Transportes de matérias primas
+    Armazem
+        - Zona de Recepção
+        - Zonas de Armazenamento
+            - Zonas refrigeradas
+            - Zonas não refrigeradas
+            - Prateleiras
+    Matérias Primas
+        - Pereciveis
+        - Não Pereciveis
+    Paletes de matérias primas
+        - QrCode
+    Robots
+        - Percurso
+    
+Cenário 2:
+    Requisição/Pedido
+        - Detalhes do Pedido ??
+    Armazem
+    Paletes Matérias Primas
+    Robots
+        - Instrução
+    Armazem
+        - Zona de Entrega
+    Notificação
+
+Cenário 3:
+    Gestor (ator)
+    Armazem
+        -Nivel de ocupação
+    Paletes
+        - localização
+            -Armazem
+            -Robots
+____________________________________________________________________________________
+Cenos e tal
+    Sistema
+    Transportes
+    Armazem
+        - Paletes de Matérias primas
+            - Pereciveis ou não Pereciveis
+            - QrCode
+            - localização/Zona
+        - Robots
+            - Percurso
+            - localização
+            - Carga
+        - Nivel de ocupação
+        - Zona de Recepção
+        - Zona de Descarga
+        - Zona de Armazenamento
+            - Zonas refrigeradas
+            - Zonas não refrigeradas
+            - Prateleiras
+    Requisição
+        - Entrega
+        - Recolha
+            - Notificação
+
+
+    
+    
+
