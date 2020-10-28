@@ -58,8 +58,35 @@ Cenos e tal
         - Entrega
         - Recolha
             - Notificação
+-----------------------------------------------------------------------------------------------
+Use Case: Efetuar Requisição Material
+Pré-Condição: true
+Pós-Condição: O Sistema fica com registo das paletes requisitadas
+Fluxo Normal:
+    1. Servidor Produção comunica quais as paletes a requisitar
+    2. Sistema valida disponibilidade das paletes
+    !! 3. Sistema calcula caminho para transporte das paletes
+    !! 4. Sistema notifica robot para transportar paletes
+    3. Sistema cria registo de paletes requisitadas
 
+Fluxo Exceção 1:[alguma palete indisponivel](passo 2)
+    2.1 Sistema comunica o cancelamento da Requisição
 
-    
-    
+Fluxo Alternativo 1:[alguma palete indisponivel](passo 2)
+    2.1 Sistema informa quais as paletes indisponiveis
+    2.2 Sistema cria registo paletes em falta
+    2.3 Sistema cria registo de paletes a entregar
 
+Fluxo Alternativo 1:[alguma palete nao disponivel](passo 2)
+    2.1 Sistema comunica as paletes que nao tem disponibilidade
+    2.2 Servidor Produção pede cancelamento paletes sem disponibilidade
+    2.3 Sistema cancela paletes sem disponibilidade
+    2.4 Regressa a 3.
+
+Fluxo Alternativo 2[requisição por fases](passo 2.2):
+    2.2.1 Sistema confirma requisição total
+    2.2.2 Sistema cria registo paletes em falta
+    2.2.3 Sistema cria registo de paletes a entregar
+
+Fluxo Exceção 3[Requisição nao pode ser por fases](passo 2.2)
+    2.2.1 Sistema Produção cancela requisição paletes
