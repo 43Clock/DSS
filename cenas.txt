@@ -90,3 +90,52 @@ Fluxo Alternativo 2[requisição por fases](passo 2.2):
 
 Fluxo Exceção 3[Requisição nao pode ser por fases](passo 2.2)
     2.2.1 Sistema Produção cancela requisição paletes
+
+---------------------------------------------------------------------------------------
+Use Case: Entrega de Paletes
+Pré-Condição: true
+Pós-Condição: O Sistema fica com um novo registo das paletes adquiridas
+Fluxo Normal:
+    1. Motorista faz pedido de descarga de paletes.
+    2. Gestor verifica ocupação do Armazem
+    3. Gestor autoriza pedido de descarga
+    4. Motorista descarrega paletes
+    5. Leitor de QRcode lê paletes
+    6. Leitor de QRcode faz registo da palete 
+
+Fluxo Exceção 1:[não existe espaço para palete](passo 2)
+    2.1 Gestor não autoriza o pedido de descarga
+    
+Fluxo Alternativo 1:[não existe espaço para palete](passo 2)
+    2.1 Gestor não autoriza pedido de descarga
+    2.2 Motorista fica em espera até haver espaço
+    2.3 Regressa a 3.
+------------------------------------------------------------------------------------
+Use Case: Armazenamento de Paletes
+Pré-Condição: Existe paletes na zona de Recepção
+Pós-Condição: Palete fica armazenada
+Fluxo Normal:
+    1. Sistema notifica que existe uma palete a ser armazenada.
+    2. Sistema escolhe robot para fazer transporte
+    3. Robot recebe notificação do Sistema
+    4. Robot recolhe palete na zona de Recepção
+    5. Robot notifica recolha da palete
+    6. Robot transporta palete até à zona de armazenamento
+    7. Robot notifica entrega da palete
+
+Fluxo Alternativo 1:[não existem Robots disponiveis](passo 2)
+    2.1 Sistema nao consegue notificar nenhum robot
+    2.2 Sistema espera até que haja um robot disponivel
+    2.3 Regressa a 3.
+
+Fluxo Alternativo 2:[robot goes bip bop]
+    
+     
+
+
+
+
+
+
+
+
