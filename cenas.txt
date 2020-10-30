@@ -37,15 +37,25 @@ Pós-Condição: Robo fica notificado e palete fica registada como estando em es
 Fluxo Normal:
     1. Sistema retira palete do estado de espera
     2. Sistema procura prateleiras para colocar palete
-    3. Sistema procura robot para transportar palete
-    4. Sistema calcula rotas para o robot
-    5. Sistema comunica rota e palete ao robot
+    3. <<Include>> Sistema procura robot para transportar palete
+    4. Sistema comunica rota e palete ao robot
+    
 Fluxo Alternativo 1[nao ha prateleiras disponiveis](passo 2):
     2.1 Sistema aguarda até haver prateleiras disponiveis
     2.2 Regressa a 3
-Fluxo Alternativo 2:[não ha robots disponiveis](passo 3):
-    3.1 Sistema aguarda até haver robot disponivel
-    3.2 Regressa a 4
+
+--------------------------------------------------------------------------------------
+Use Case: Sistema procura robot para transportar palete
+Pré-Condição: Existe palete para ser transporta
+Pós-Condição: Sistema escolhe robot mais adequado
+Fluxo Normal:
+    1. Sistema acede à listagem de localizações
+    2. Sistema escolhe o robot disponivel mais perto
+    3. Sistema escolhe o percurso mais adequado para o robot
+
+Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
+    2.1 Sistema aguarda até existir robot disponivel
+    2.2 Regressa a 3
 ----------------------------------------------------------------------------------------
 Use Case: Transporte de Paletes
 Pré-Condição: Existem paletes para transportar
