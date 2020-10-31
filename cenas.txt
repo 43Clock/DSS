@@ -11,29 +11,16 @@ Fluxo Normal:
 Fluxo Exceção 1:[alguma palete indisponivel](passo 2)
     2.1 Sistema comunica o cancelamento da Requisição
 
-Fluxo Alternativo 1:[alguma palete indisponivel](passo 2)
-    2.1 Sistema informa quais as paletes indisponiveis
-    2.2 Sistema cria registo paletes em falta
-    2.3 Sistema cria registo de paletes a entregar
-
 Fluxo Alternativo 1:[alguma palete nao disponivel](passo 2)
     2.1 Sistema comunica as paletes que nao tem disponibilidade
     2.2 Servidor Produção pede cancelamento paletes sem disponibilidade
     2.3 Sistema cancela paletes sem disponibilidade
     2.4 Regressa a 3.
 
-Fluxo Alternativo 2[requisição por fases](passo 2.2):
-    2.2.1 Sistema confirma requisição total
-    2.2.2 Sistema cria registo paletes em falta
-    2.2.3 Sistema cria registo de paletes a entregar
-
-Fluxo Exceção 3[Requisição não pode ser por fases](passo 2.2)
-    2.2.1 Sistema Produção cancela requisição paletes
-
 ---------------------------------------------------------------------------------------
 Use Case: Sistema notifica transporte palete
 Pré-Condição: Existem paletes a ser transportadas
-Pós-Condição: Robo fica notificado e palete fica registada como estando em espera
+Pós-Condição: Robot fica notificado e palete fica registada como estando em espera
 Fluxo Normal:
     1. Sistema retira palete do estado de espera
     2. Sistema procura prateleiras para colocar palete
@@ -134,14 +121,3 @@ Pós-Condição: Sistema é notificado
 Fluxo Normal:
     1. Encarregado notifica sistema da entrega da palete
     2. Sistema remove do registo as paletes entregues
-
-
-     
-
-
-
-
-
-
-
-
