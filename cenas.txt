@@ -6,10 +6,6 @@ Fluxo Normal:
     1. Servidor Produção comunica quais as paletes a requisitar
     2. Sistema valida disponibilidade das paletes
     3. Sistema cria registo de paletes requisitadas
-    4. Encarregado notifica que a entrega foi realizada com sucesso
-
-Fluxo Exceção 1:[alguma palete indisponivel](passo 2)
-    2.1 Sistema comunica o cancelamento da Requisição
 
 Fluxo Alternativo 1:[alguma palete nao disponivel](passo 2)
     2.1 Sistema comunica as paletes que nao tem disponibilidade
@@ -22,62 +18,61 @@ Use Case: Sistema notifica transporte palete
 Pré-Condição: Existem paletes a ser transportadas
 Pós-Condição: Robot fica notificado e palete fica registada como estando em espera
 Fluxo Normal:
-    1. Sistema retira palete do estado de espera
-    2. Sistema procura prateleiras para colocar palete
-    3. <<Include>> Sistema procura robot para transportar palete
-    4. Sistema comunica rota e palete ao robot
+    1. Sistema procura prateleiras para colocar palete
+    2. Sistema procura robot para transportar palete
+    3. Sistema calcula percurso para o robot
+    3. Sistema envia instrução ao robot
     
-Fluxo Alternativo 1[nao ha prateleiras disponiveis](passo 2):
+Fluxo Alternativo 1[nao ha prateleiras disponiveis](passo 1):
     2.1 Sistema aguarda até haver prateleiras disponiveis
     2.2 Regressa a 3
 
---------------------------------------------------------------------------------------
-Use Case: Sistema procura robot para transportar palete
-Pré-Condição: Existe palete para ser transporta
-Pós-Condição: Sistema escolhe robot mais adequado
-Fluxo Normal:
-    1. Sistema acede à listagem de localizações
-    2. Sistema escolhe o robot disponivel mais perto
-    3. Sistema escolhe o percurso mais adequado para o robot
-
-Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
+Fluxo Alternativo 2:[não existem robots disponiveis](passo 2)
     2.1 Sistema aguarda até existir robot disponivel
     2.2 Regressa a 3
 ----------------------------------------------------------------------------------------
 Use Case: Transporte de Paletes
-Pré-Condição: Existem paletes para transportar
+Pré-Condição: Robot recebe a instrução do Sistema
 Pós-Condição: Robot coloca a palete no local devido 
 Fluxo Normal:
     1. Robot recolhe palete.
     2. <<Include>> Robot notifica recolha da palete
-    3. Robot transporta palete até ao destino
-    4. Robot descarrega a palete
-    5. <<Include>> Robot notifica entrega da palete
+    3. Sistema retira palete do estado de espera
+    4. Robot transporta palete até ao destino
+    5. Robot descarrega a palete
+    6. <<Include>> Robot notifica entrega da palete
+    7. Sistema altera estado da palete
 --------------------------------------------------------------------------------------------
 Use Case: Notifica Sistema da Recolha
 Pré-Condição: Robot recolheu palete
 Pós-Condição: Sistema é notificado da recolha
 Fluxo Normal:
     1. Robot notifica Sistema.
-Fluxo Exceção:[falha no envio da notificação] (passo 1)
-    1.1 Robot tenta reenviar notificação
+    2. Sistema é notificado da recolha da palete
+
+Fluxo Alternativo:[falha no envio da notificação] (passo 1)
+    1.1 Robot reenvia notificação
+    1.2 Regressa a 2
 ------------------------------------------------------------------------------------------
 Use Case: Notifica Sistema da Entrega
 Pré-Condição: Robo está ocupado com uma palete
-Pós-Condição: Sistema é notificado da entrega da oalete
+Pós-Condição: Sistema é notificado da entrega da palete
 Fluxo Normal:
     1. Robot notifica Sistema.
-Fluxo Exceção:[falha no envio da notificação] (passo 1)
-    1.1 Robot tenta reenviar notificação
+    2. Sistema é notificado da entrega da palete
+Fluxo Alternativo:[falha no envio da notificação] (passo 1)
+    1.1 Robot reenvia notificação
+    1.2 Regressa a 2
 ------------------------------------------------------------------------------------------
-Use Case: Solicitação de entrega de paletes
+Use Case: Solicita autorização descarga
 Pré-Condição: true
 Pós-Condição: Paletes ficam à espera de registo
 Fluxo Normal:
     1. Motorista faz pedido de descarga de paletes.
-    2. <<Include>> Gestor solicita listagem de paletes.
-    3. <<Include>> Gestor autoriza entrega de paletes
-    4. Motorista descarrega paletes
+    2. Sistema informa Gestor do pedido de descarga
+    3. <<Include>> Gestor solicita listagem de paletes.
+    4. <<Include>> Gestor autoriza entrega de paletes
+    5. Motorista descarrega paletes
 
 Fluxo Exceção 1:[Gestor não autoriza descarga](passo 3)
     3.1 Motorista vai embora
