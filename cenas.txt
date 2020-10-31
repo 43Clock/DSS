@@ -70,14 +70,10 @@ Pós-Condição: Paletes ficam à espera de registo
 Fluxo Normal:
     1. Motorista faz pedido de descarga de paletes.
     2. Sistema informa Gestor do pedido de descarga
-    3. <<Include>> Gestor solicita listagem de paletes.
-    4. <<Include>> Gestor autoriza entrega de paletes
-    5. Motorista descarrega paletes
-    6. Sistema notifica Leitor de QrCode que existem paletes a registar
+    3. <<Include>> Gestor autoriza entrega de paletes
+    4. Motorista descarrega paletes
+    5. Sistema notifica Leitor de QrCode que existem paletes a registar
 
-Fluxo Alternativo 1:[Gestor não autoriza descarga](passo 3)
-    3.1 Motorista fica em espera até haver espaço
-    3.2 Regressa a 4.
 --------------------------------------------------------------------------------------------
 Use Case: Leitura e registo de paletes
 Pré-Condição: Existem paletes para serem registadas
