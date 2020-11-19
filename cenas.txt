@@ -80,12 +80,13 @@ Pré-Condição: Existem paletes para serem registadas
 Pós-Condição: Novo registo no Sistema
 Fluxo Normal:
     1. Leitor de QrCode lê codigo da palete
-    2. Sistema regista palete no estado de espera
+    2. Leitor de QrCode comunica informação da leitura ao Sistema
+    3. Sistema regista palete no estado de espera
 Fluxo Alternativo 1[falha na Leitura](passo 1):
     1.1 Leitor de QrCode tenta ler codigo novamente
     1.2 Regressa a 2
-Fluxo Exceção 1[falha no registo](passo 2):
-    2.1 Sistema não aceita palete
+Fluxo Exceção 1[falha no registo](passo 3):
+    3.1 Sistema não aceita palete
 -------------------------------------------------------------------------------------------
 Use Case: Autorização de descarga
 Pré-Condição: Ha um pedido de descarga
@@ -111,3 +112,32 @@ Pós-Condição: Sistema é notificado
 Fluxo Normal:
     1. Encarregado notifica sistema da entrega da palete
     2. Sistema remove o registo das paletes entregues
+---------------------------------------------------------------------------------
+Use Case: Inicia Sessão
+Pré-Condição: true
+Pós-Condição: Gestor fica com sessão iniciada no sistema
+Fluxo Normal:
+    1. Gestor introduz nome de utilizador 
+    2. Gestor introduz palavra-passe
+    3. Sistema valida dados introduzidos
+    4. Sistema informa que login foi feito com sucesso
+Fluxo Alternativo [utilizador inválido](passo 3):
+    3.1 Sistema informa o Gestor que nome de utilizador é invalido
+    3.2 Regressa a 1
+Fluxo Alternativo [palavra-passe inválida](passo 3):
+    3.1 Sistema informa o Gestor que palavra-passe é invalida
+    3.2 Regressa a 2
+---------------------------------------------------------------------------------
+Use Case: Termina Sessão
+Pré-Condição: Gestor tem sessão iniciada no Sistema
+Pós-Condição: Gestor fica com a sessao terminada no sistema
+Fluxo Normal: 
+    1.Gestor informa o sistema que pretende terminar sessão
+    2. Sistema encerra sessão do Gestor
+---------------------------------------------------------------------------------    
+Use Case: Consultar listagem de localizações
+Pré-Condição: teruehe
+Pós-Condição: Gestor acede à listagem de localizações
+Fluxo Normal:
+    1. Gestor solicita a listagem de localizações ao Sistema
+    2. Sistema informa Gestor sobre a listagem de localizações
