@@ -1,0 +1,34 @@
+Responsabilidades:
+
+1.Validar disponibilidade de paletes
+2.Criar registo de paletes
+3.Cancelar paletes sem disponibilidade
+4.Procurar prateleiras para colocar paletes
+5.Procurar robot para transportar palete
+6.Calcular percurso para o robot
+7.Enviar instrução ao robot
+8.Alterar estado da palete
+9.Registar palete
+//10.Aceitar palete
+11.Remover o registo de palete
+//12.Validar dados introduzidos
+13.Encerrar sessão do Gestor
+14.Iniciar sessão do Gestor
+15.Atualizar o nivel de ocupação do armazem
+16.Verificar o nivel de ocupação
+
+Facade:
++validaDispPalete(r:Registo):Boolean                        \Sub Palete            
++criarRegisto(p:Palete):Boolean                             \Sub Palete
++cancelarPalete(p:Pedido.p1:Palete):Boolean                 \Sub Palete
++procurarPrateleiraDisp():Prateleira                        \Sub Armazenamento
++procurarRobot():robot                                      \Sub Robot
++calcularPercurso(r:Robot,p1:Palete,l:Localização):Percurso \Sub Robot
++enviarInstruçãoRobot(r:Robot,i:Instrução):Boolean          \Sub Robot
++alterarEstadoPalete(p:palete):Boolean                      \Sub Palete
++registarPalete(p:Palete):Boolean                           \Sub Palete
++removerRegistoPalete(p:Palete):Registo                     \Sub Palete
++encerrarSessao():Boolean                                   \Sub Logins
++iniciarSessao(u:username,p:passe):Boolean                  \Sub Logins
++atualizarNivelOcupação(z:Zona de Armazenamento):Void       \Sub Armazenamento
++verificarNivelOcupação(z:Zona de Armazenamento):Boolean    \Sub Armazenamento

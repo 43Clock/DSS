@@ -68,7 +68,7 @@ Use Case: Solicita autorização descarga
 Pré-Condição: true
 Pós-Condição: Paletes ficam à espera de registo
 Fluxo Normal:
-    1. Motorista faz pedido de descarga de paletes.
+    1. Motorista faz pedido de descarga de paletes //indicando o tipo de materia prima.
     2. Sistema informa Gestor do pedido de descarga
     3. <<Include>> Gestor autoriza entrega de paletes
     4. Motorista descarrega paletes
@@ -82,6 +82,7 @@ Fluxo Normal:
     1. Leitor de QrCode lê codigo da palete
     2. Leitor de QrCode comunica informação da leitura ao Sistema
     3. Sistema regista palete no estado de espera
+    4. Sistema atualiza o nivel de ocupação da zona de armazenamento
 Fluxo Alternativo 1[falha na Leitura](passo 1):
     1.1 Leitor de QrCode tenta ler codigo novamente
     1.2 Regressa a 2
@@ -92,12 +93,19 @@ Use Case: Autorização de descarga
 Pré-Condição: Ha um pedido de descarga
 Pós-Condição: Pedido de descarga é aceite
 Fluxo Normal:
-    1. <<Include>> Gestor Solicita Listagem Paletes
+    1. <<Include>> Sistema verifica o nivel de ocupação da zona de armazenamento
     2. Gestor autoriza pedido de descarga.
-    3. Sistema notifica Motorista
+    3. Sistema notifica Motorista.
 Fluxo Alternativo[armazem está lotado](passo 1):
     1.1 Gestor não autoriza descarga
     1.2 Regressa a 3
+-----------------------------------------------------------
+Use Case: Verifica o nível de ocupação da zona de armazenamento
+Pré-Condição: True
+Pós-Condição: Gestor recebe o nível de ocupação da zona de armazenamento
+Fluxo Normal:  
+    1. Gestor solicita o nível de ocupação da zona de armazenamento correspondente.
+    2. Sistema comunica ao gestor o nivel de ocupação.
 ---------------------------------------------------------------------------------------------
 Use Case: Gestor solicita listagem paletes
 Pré-Condição: true
@@ -112,6 +120,7 @@ Pós-Condição: Sistema é notificado
 Fluxo Normal:
     1. Encarregado notifica sistema da entrega da palete
     2. Sistema remove o registo das paletes entregues
+    3. Sistema atualiza o nivel de ocupação da zona de armazenamento
 ---------------------------------------------------------------------------------
 Use Case: Inicia Sessão
 Pré-Condição: true
@@ -120,7 +129,8 @@ Fluxo Normal:
     1. Gestor introduz nome de utilizador 
     2. Gestor introduz palavra-passe
     3. Sistema valida dados introduzidos
-    4. Sistema informa que login foi feito com sucesso
+    4. Sistema inicia sessão do Gestor.
+    5. Sistema informa que login foi feito com sucesso
 Fluxo Alternativo [utilizador inválido](passo 3):
     3.1 Sistema informa o Gestor que nome de utilizador é invalido
     3.2 Regressa a 1
