@@ -119,8 +119,9 @@ Pré-Condição: Paletes requisitadas chegam à zona de entrega
 Pós-Condição: Sistema é notificado
 Fluxo Normal:
     1. Encarregado notifica sistema da entrega da palete
-    2. Sistema remove o registo das paletes entregues
-    3. Sistema atualiza o nivel de ocupação da zona de armazenamento
+    2. Sistema remove o registo da palete entregue da listagem de paletes
+    3. Sistema atualiza o nível de ocupação da prateleira
+    4. Sistema atualiza o nivel de ocupação da zona de armazenamento
 ---------------------------------------------------------------------------------
 Use Case: Inicia Sessão
 Pré-Condição: true

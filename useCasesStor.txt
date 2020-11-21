@@ -13,24 +13,36 @@ Fluxo Alternativo 1:[alguma palete nao disponivel](passo 2)
     2.4 Regressa a 3.
 
 ---------------------------------------------------------------------------------------
-Use Case: Sistema notifica transporte palete
+Use Case: Sistema notifica armazenamento palete
 Pré-Condição: Existem paletes a ser transportadas
-Pós-Condição: Robot fica notificado e palete fica registada como estando em espera
+Pós-Condição: Robot fica notificado e palete fica registada como estado em espera
 Fluxo Normal:
     1. Sistema procura prateleiras para colocar palete
-    2. Sistema procura robot para transportar palete
-    3. Sistema calcula percurso para o robot
-    3. Sistema envia instrução ao robot
-    
-Fluxo Alternativo 1[nao ha prateleiras disponiveis](passo 1):
-    2.1 Sistema aguarda até haver prateleiras disponiveis
-    2.2 Regressa a 3
+    2. Sistema atualiza o nivel de ocupação da prateleira
+    3. Sistema procura robot para transportar palete
+    4. Sistema calcula percurso para o robot
+    5. Sistema cria instrução
+    6. Sistema envia instrução ao robot
 
-Fluxo Alternativo 2:[não existem robots disponiveis](passo 2)
+Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
     2.1 Sistema aguarda até existir robot disponivel
     2.2 Regressa a 3
 ----------------------------------------------------------------------------------------
-Use Case: Notifica Sistema da Recolha
+Use Case: Sistema notifica recolha de palete
+Pré-Condição: Existem paletes a ser transportadas
+Pós-Condição: Robot fica notificado e palete fica registada como estado em espera
+Fluxo Normal:
+    1. Sistema procura a prateleira onde está armazenada a palete
+    2. Sistema atualiza o nivel de ocupação da prateleira
+    3. Sistema procura robot para transportar palete
+    4. Sistema calcula percurso para o robot
+    5. Sistema envia instrução ao robot
+
+Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
+    2.1 Sistema aguarda até existir robot disponivel
+    2.2 Regressa a 3
+----------------------------------------------------------------------------------------
+Use Case: Robot notifica Sistema da Recolha da palete
 Pré-Condição: Robot recolheu palete
 Pós-Condição: Sistema é notificado da recolha
 Fluxo Normal:
@@ -42,7 +54,7 @@ Fluxo Alternativo:[falha no envio da notificação] (passo 2)
     2.1 Robot reenvia notificação
     2.2 Regressa a 2
 ------------------------------------------------------------------------------------------
-Use Case: Notifica Sistema da Entrega
+Use Case: Robot notifica Sistema da Entrega da palete
 Pré-Condição: Robo está ocupado com uma palete
 Pós-Condição: Sistema é notificado da entrega da palete
 Fluxo Normal:
@@ -91,8 +103,57 @@ Fluxo Normal:
     2. Sistema encerra sessão do Gestor
 ---------------------------------------------------------------------------------    
 Use Case: Consultar listagem de localizações
-Pré-Condição: teruehe
+Pré-Condição: true
 Pós-Condição: Gestor acede à listagem de localizações
 Fluxo Normal:
     1. Gestor solicita a listagem de localizações ao Sistema
     2. Sistema informa Gestor sobre a listagem de localizações
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+Use Case: Solicita autorização descarga
+Pré-Condição: true
+Pós-Condição: Paletes ficam à espera de registo
+Fluxo Normal:
+    1. Motorista faz pedido de descarga de paletes indicando o tipo de materia prima.
+    2. Sistema informa Gestor do pedido de descarga
+    3. <<Include>> Gestor autoriza entrega de paletes
+    4. Motorista descarrega paletes
+    5. Sistema notifica Leitor de QrCode que existem paletes a registar
+-------------------------------------------------------------------------------------------
+Use Case: Autorização de descarga
+Pré-Condição: Ha um pedido de descarga
+Pós-Condição: Pedido de descarga é aceite
+Fluxo Normal:
+    1. <<Include>> Verifica o nivel de ocupação da zona de armazenamento
+    2. Gestor autoriza pedido de descarga.
+    3. Sistema notifica Motorista.
+Fluxo Alternativo[armazem está lotado](passo 1):
+    1.1 Gestor não autoriza descarga
+    1.2 Regressa a 3
+-----------------------------------------------------------
+Use Case: Verifica o nível de ocupação da zona de armazenamento
+Pré-Condição: True
+Pós-Condição: Gestor recebe o nível de ocupação da zona de armazenamento
+Fluxo Normal:  
+    1. Gestor solicita o nível de ocupação da zona de armazenamento correspondente.
+    2. Sistema verifica o nivel de ocupação da zona de armazenamento.
+    3. Sistema comunica ao Gestor se há espaço para entrada de paletes.
+---------------------------------------------------------------------------------------------
+Use Case: Gestor solicita listagem paletes
+Pré-Condição: true
+Pós-Condição: Gestor fica informado sobre a listagem
+Fluxo Normal:
+    1. Gestor solicita a listagem das paletes ao Sistema.
+    2. Sistema informa Gestor sobre a listagem das paletes
+---------------------------------------------------------------------------------------------
+Use Case: Notificação da satisfação da Requisição
+Pré-Condição: Paletes requisitadas chegam à zona de entrega
+Pós-Condição: Sistema é notificado
+Fluxo Normal:
+    1. Encarregado notifica sistema da entrega da palete
+    2. Sistema remove o registo da palete entregue da listagem de paletes
+    3. Sistema atualiza o nivel de ocupação da zona de armazenamento
