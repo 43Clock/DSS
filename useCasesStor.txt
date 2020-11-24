@@ -5,8 +5,8 @@ Pós-Condição1: Sistema envia instrução ao Robot
 Fluxo Normal:
     1. Servidor Produção comunica quais as paletes a requisitar
     2. Sistema valida disponibilidade das paletes
-    3. Sistema cria registo de paletes requisitadas
-    4. Sistema procura as prateleiras onde está armazenada a paletes
+    //3. Sistema cria registo de paletes requisitadas
+    4. Sistema procura as prateleiras onde estão armazenadas as paletes
     5. Sistema atualiza o nivel de ocupação das prateleiras
     6. Sistema procura robots para transportar as paletes
     7. Sistema calcula os percursos para os robots
@@ -59,24 +59,22 @@ Use Case: Robot notifica Sistema da Recolha da palete
 Pré-Condição: Robot recolheu palete
 Pós-Condição: Sistema é notificado da recolha
 Fluxo Normal:
-    1. Robot recolhe palete.
-    2. Robot notifica Sistema.
-    3. Sistema retira palete do estado de espera
+    1. Robot notifica Sistema.
+    2. Sistema retira palete do estado de espera
 
-Fluxo Alternativo:[falha no envio da notificação] (passo 2)
-    2.1 Robot reenvia notificação
-    2.2 Regressa a 2
+Fluxo Alternativo:[falha no envio da notificação] (passo 1)
+    1.1 Robot reenvia notificação
+    1.2 Regressa a 2
 ------------------------------------------------------------------------------------------
 Use Case: Robot notifica Sistema da Entrega da palete
-Pré-Condição: Robo está ocupado com uma palete
+Pré-Condição: Robot descarregou palete
 Pós-Condição: Sistema é notificado da entrega da palete
 Fluxo Normal:
-    1. Robot descarrega a palete
-    2. Robot notifica Sistema.
-    3. Sistema altera estado da palete
-Fluxo Alternativo:[falha no envio da notificação] (passo 2)
-    2.1 Robot reenvia notificação
-    2.2 Regressa a 2
+    1. Robot notifica Sistema.
+    2. Sistema altera estado da palete
+Fluxo Alternativo:[falha no envio da notificação] (passo 1)
+    1.1 Robot reenvia notificação
+    1.2 Regressa a 2
 --------------------------------------------------------------------------------------------
 Use Case: Leitura e registo de paletes
 Pré-Condição: Existem paletes para serem registadas
