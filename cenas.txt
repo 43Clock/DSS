@@ -114,7 +114,7 @@ Fluxo Normal:
     1. Gestor solicita a listagem das paletes ao Sistema.
     2. Sistema informa Gestor sobre a listagem das paletes
 ---------------------------------------------------------------------------------------------
-Use Case: notificação da satisfação da Requisição
+Use Case: Notificação da satisfação da Requisição
 Pré-Condição: Paletes requisitadas chegam à zona de entrega
 Pós-Condição: Sistema é notificado
 Fluxo Normal:
