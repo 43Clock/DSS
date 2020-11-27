@@ -5,8 +5,8 @@ Pós-Condição1: Sistema envia instrução ao Robot
 Fluxo Normal:
     1. Servidor Produção comunica quais as paletes a requisitar
     2. Sistema valida disponibilidade das paletes
-    //3. Sistema cria registo de paletes requisitadas
-    4. Sistema procura as prateleiras onde estão armazenadas as paletes
+    3. Sistema procura as prateleiras onde estão armazenadas as paletes
+    4. Sistema atualiza o nivel de ocupacao da zona de armazenamento
     5. Sistema atualiza o nivel de ocupação das prateleiras
     6. Sistema procura robots para transportar as paletes
     7. Sistema calcula os percursos para os robots
@@ -22,39 +22,6 @@ Fluxo Alternativo 2:[não existem robots disponiveis](passo 6)
     6.1 Sistema aguarda até existir robot disponivel
     6.2 Regressa a 3
 ---------------------------------------------------------------------------------------
-//
-Use Case: Sistema notifica armazenamento palete
-Pré-Condição: Existem paletes a ser transportadas
-Pós-Condição: Robot fica notificado e palete fica registada como estado em espera
-Fluxo Normal:
-    1. Sistema procura prateleiras para colocar palete
-    2. Sistema atualiza o nivel de ocupação da prateleira
-    3. Sistema procura robot para transportar palete
-    4. Sistema calcula percurso para o robot
-    5. Sistema cria instrução
-    6. Sistema envia instrução ao robot
-
-Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
-    2.1 Sistema aguarda até existir robot disponivel
-    2.2 Regressa a 3
-//
-----------------------------------------------------------------------------------------
-//
-Use Case: Sistema notifica recolha de palete
-Pré-Condição: Existem paletes a ser transportadas
-Pós-Condição: Robot fica notificado e palete fica registada como estado em espera
-Fluxo Normal:
-    1. Sistema procura a prateleira onde está armazenada a palete
-    2. Sistema atualiza o nivel de ocupação da prateleira
-    3. Sistema procura robot para transportar palete
-    4. Sistema calcula percurso para o robot
-    5. Sistema envia instrução ao robot
-
-Fluxo Alternativo 1:[não existem robots disponiveis](passo 2)
-    2.1 Sistema aguarda até existir robot disponivel
-    2.2 Regressa a 3
-//
-----------------------------------------------------------------------------------------
 Use Case: Robot notifica Sistema da Recolha da palete
 Pré-Condição: Robot recolheu palete
 Pós-Condição: Sistema é notificado da recolha
@@ -177,4 +144,3 @@ Pós-Condição: Sistema é notificado
 Fluxo Normal:
     1. Encarregado notifica sistema da entrega da palete
     2. Sistema remove o registo da palete entregue da listagem de paletes
-    3. Sistema atualiza o nivel de ocupação da zona de armazenamento
