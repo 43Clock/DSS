@@ -76,12 +76,11 @@ Fluxo Normal:
     3. Sistema valida dados introduzidos
     4. Sistema inicia sessão do Gestor.
     5. Sistema informa que login foi feito com sucesso
-Fluxo Alternativo [utilizador inválido](passo 3):
-    3.1 Sistema informa o Gestor que nome de utilizador é invalido
-    3.2 Regressa a 1
+Fluxo Exceção [utilizador inválido](passo 3):
+    3.1 Sistema não inicia sessão
+
 Fluxo Alternativo [palavra-passe inválida](passo 3):
-    3.1 Sistema informa o Gestor que palavra-passe é invalida
-    3.2 Regressa a 2
+    3.1 Sistema não inicia sessão
 ---------------------------------------------------------------------------------
 Use Case: Termina Sessão
 Pré-Condição: Gestor tem sessão iniciada no Sistema
