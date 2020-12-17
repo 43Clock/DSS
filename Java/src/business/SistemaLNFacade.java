@@ -1,5 +1,8 @@
 package business;
 
+import data.PaleteDAO;
+import data.PrateleiraDAO;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,8 +28,8 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                              {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,5.0,0.0},
                              {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,2.5},
                              {0.0,0.0,0.0,0.0,0.0,2.5,0.0,0.0,0.0,0.0,2.5,0.0}};
-        this.paletes = new HashMap<>();
-        this.prateleira = new HashMap<>();
+        this.paletes = PaleteDAO.getInstance();
+        this.prateleira = PrateleiraDAO.getInstance();
         this.robot = new HashMap<>();
         this.leitorQrCode = new LeitorQrCode();
     }

@@ -15,6 +15,13 @@ public class Prateleira {
         this.ocupada = false;
     }
 
+    public Prateleira(int localizacao, Palete palete, boolean ocupada, int identificador) {
+        this.localizacao = localizacao;
+        this.palete = palete;
+        this.ocupada = ocupada;
+        this.identificador = identificador;
+    }
+
     public int getLocalizacao() {
         return localizacao;
     }
