@@ -17,13 +17,14 @@ public class PaleteDAO implements Map<Integer,Palete> {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS Palete (" +
-                    "Identificador INT NOT NULL AUTO_INCREMENT PRIMARY KEY ," +
+                    "Identificador INT NOT NULL AUTO_INCREMENT ," +
                     "Material varchar(45) NOT NULL ," +
                     "Peso DOUBLE NOT NULL ," +
                     "Preco DOUBLE NOT NULL ,"+
                     "Localizacao INT NOT NULL ," +
                     "Espera TINYINT(1) DEFAULT 1 ," +
-                    "QrCode VARCHAR(45) NOT NULL)";
+                    "QrCode VARCHAR(45) NOT NULL," +
+                    "PRIMARY KEY (Identificador));";
             stm.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,7 +103,7 @@ public class PaleteDAO implements Map<Integer,Palete> {
         Palete a = null;
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT * FROM Palete WHERE Num="+key)) {
+             ResultSet rs = stm.executeQuery("SELECT * FROM Palete WHERE Identificador="+key)) {
             if (rs.next()) {
                 a = new Palete(rs.getInt("Localizacao"), rs.getString("Material"), rs.getDouble("Peso"),
                                rs.getDouble("Preco"),rs.getBoolean("Espera"),rs.getInt("Identificador"),new QrCode(rs.getString("QrCode")));
@@ -122,8 +123,9 @@ public class PaleteDAO implements Map<Integer,Palete> {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
             stm.executeUpdate(
-                    "INSERT INTO Palete VALUES ('"+a.getIdentificador()+"', '"+a.getMaterial()+"', '"+a.getPeso()+"', '"+a.getPreco()+"', '"+a.getLocalizacao()+"', '"
-                                                    +espera+"', '"+a.getQrCode().getCode()+"');");
+                    "INSERT INTO Palete VALUES ('"+key+"', '"+a.getMaterial()+"', '"+a.getPeso()+"', '"+a.getPreco()+"', '"+a.getLocalizacao()+"', '"
+                                                    +espera+"', '"+a.getQrCode().getCode()+"')" +
+                            "ON DUPLICATE KEY UPDATE Localizacao = " + a.getLocalizacao() +", Espera = " +espera);
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -137,7 +139,7 @@ public class PaleteDAO implements Map<Integer,Palete> {
         Palete t = this.get(key);
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
-            stm.executeUpdate("DELETE FROM Palete WHERE Num='"+key+"'");
+            stm.executeUpdate("DELETE FROM Palete WHERE Identificador='"+key+"'");
         } catch (Exception e) {
             // Database error!
             e.printStackTrace();
@@ -153,8 +155,8 @@ public class PaleteDAO implements Map<Integer,Palete> {
      * @throws NullPointerException Em caso de erro - deveriam ser criadas exepções do projecto
      */
     @Override
-    public void putAll(Map<? extends Integer, ? extends Palete> alunos) {
-        for(Palete a : alunos.values()) {
+    public void putAll(Map<? extends Integer, ? extends Palete> palete) {
+        for(Palete a : palete.values()) {
             this.put(a.getIdentificador(), a);
         }
     }
@@ -194,9 +196,9 @@ public class PaleteDAO implements Map<Integer,Palete> {
         Collection<Palete> col = new HashSet<>();
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT Material FROM Palete")) {
+             ResultSet rs = stm.executeQuery("SELECT Identificador FROM Palete")) {
             while (rs.next()) {
-                col.add(this.get(rs.getString("Material")));
+                col.add(this.get(rs.getInt("Identificador")));
             }
         } catch (Exception e) {
             e.printStackTrace();

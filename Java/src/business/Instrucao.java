@@ -17,6 +17,11 @@ public class Instrucao {
         return iDpalete;
     }
 
+    public int getDestino() {
+        String[] splited= this.caminho.split("->");
+        return Integer.parseInt(splited[splited.length-1]);
+    }
+
     public void setCaminho(String caminho) {
         this.caminho = caminho;
     }

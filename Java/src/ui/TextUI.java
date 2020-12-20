@@ -6,10 +6,12 @@
  */
 package ui;
 
+import Exceptions.*;
 import business.ISistemaLNFacade;
 import business.QrCode;
 import business.SistemaLNFacade;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -37,6 +39,11 @@ public class TextUI {
         // Criar o menu
         String[] opcoes = {
                 "Ler e Registar CodigoQR",
+                "Adicionar Robots",
+                "Comunica Ordem de Transporte",
+                "Notifica Recolha",
+                "Notifica Entrega",
+                "Listagem de Localizacoes"
                 };
         this.menu = new Menu(opcoes);
         this.model = new SistemaLNFacade();
@@ -53,6 +60,21 @@ public class TextUI {
                 case 1:
                     adicionaPalete();
                     break;
+                case 2:
+                    adicionaRobot();
+                    break;
+                case 3:
+                    comunicaOrdemTransporte();
+                    break;
+                case 4:
+                    notificaRecolha();
+                    break;
+                case 5:
+                    notificaEntrega();
+                    break;
+                case 6:
+                    listagemDeLocalizacoes();
+                    break;
             }
         } while (menu.getOpcao()!=0); // A opção 0 é usada para sair do menu.
         System.out.println("Até breve!...");
@@ -60,7 +82,7 @@ public class TextUI {
 
     private void adicionaPalete(){
         try {
-            System.out.println("Inserir Codigo Qr");
+            System.out.println("\nInserir Codigo Qr");
             String code = scin.nextLine();
             model.lerCodigoQr(new QrCode(code));
             System.out.println("\nCodigo registado com sucesso!");
@@ -68,5 +90,52 @@ public class TextUI {
             System.out.println("\nCodigo Qr Inválido");
         }
 
+    }
+
+    private void adicionaRobot() {
+        this.model.criaRobot();
+        System.out.println("\nNovo Robot adicionado ao Sistema");
+    }
+
+    private void comunicaOrdemTransporte() {
+        try {
+            model.comunicaOrdemDeTransporte();
+            System.out.println("\nInstrucao foi atribuida a um Robot");
+        } catch (PrateleiraIndisponivelException | RobotIndisponivelException | PaletesIndisponiveisException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void notificaRecolha() {
+        try {
+            System.out.println("\nInserir Codigo Robot");
+            String code = scin.nextLine();
+            model.notificaRecolha(Integer.parseInt(code));
+            System.out.println("\nRecolha feita com sucesso!");
+        } catch (RobotNaoTemInstrucaoException |ArrayIndexOutOfBoundsException e) {
+            System.out.println(e.getMessage());
+        }catch (NumberFormatException e) {
+            System.out.println("Nenhum Input fornecido");
+        }
+    }
+
+    public void notificaEntrega() {
+        try {
+            System.out.println("\nInserir Codigo Robot");
+            String code = scin.nextLine();
+            model.notificaEntrega(Integer.parseInt(code));
+            System.out.println("\nEntrega feita com sucesso!");
+        } catch (RobotNaoTemInstrucaoException | RobotNaoRecolheuPaleteException | ArrayIndexOutOfBoundsException e) {
+            System.out.println(e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Nenhum Input fornecido");
+        }
+    }
+
+    public void listagemDeLocalizacoes() {
+        List<String> localizacoes = this.model.listagemDeLocalizacao();
+        for (String s : localizacoes) {
+            System.out.println(s);
+        }
     }
 }

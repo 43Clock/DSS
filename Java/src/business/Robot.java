@@ -3,12 +3,21 @@ package business;
 public class Robot {
     private int localizacao;
     private int identificador;
+    private Boolean recolhida;
     private Instrucao instrucao;
 
     public Robot(int identificador) {
         this.localizacao  = 0;
         this.identificador = identificador;
+        this.recolhida = false;
         this.instrucao = null;
+    }
+
+    public Robot(int localizacao, int identificador, Boolean recolhida, Instrucao instrucao) {
+        this.localizacao = localizacao;
+        this.identificador = identificador;
+        this.recolhida = recolhida;
+        this.instrucao = instrucao;
     }
 
     public int getLocalizacao() {
@@ -23,6 +32,10 @@ public class Robot {
         return instrucao;
     }
 
+    public Boolean getRecolhida() {
+        return recolhida;
+    }
+
     public void setLocalizacao(int localizacao) {
         this.localizacao = localizacao;
     }
@@ -35,10 +48,14 @@ public class Robot {
         this.instrucao = instrucao;
     }
 
-    public void fazIntrucao(){
-        String[] splited= this.instrucao.getCaminho().split("->");
-        int local = Integer.parseInt(splited[splited.length-1]);
-        this.localizacao = local;
+    public void setRecolhida(Boolean recolhida) {
+        this.recolhida = recolhida;
+    }
+
+    public void acabaInstrucao(){
+        this.localizacao = this.instrucao.getDestino();
         this.instrucao = null;
     }
+
+
 }

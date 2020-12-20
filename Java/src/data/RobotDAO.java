@@ -1,8 +1,6 @@
 package data;
 
-import business.Palete;
-import business.Prateleira;
-import business.QrCode;
+import business.*;
 
 import java.sql.*;
 import java.util.Collection;
@@ -10,19 +8,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class PrateleiraDAO implements Map<Integer,Prateleira>{
-    private static PrateleiraDAO singleton = null;
+public class RobotDAO implements Map<Integer, Robot> {
+    private static RobotDAO singleton = null;
 
 
-    private PrateleiraDAO() {
+    private RobotDAO() {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS Prateleira (" +
-                    "Identificador INT NOT NULL AUTO_INCREMENT PRIMARY KEY ," +
-                    "Localizacao INT NOT NULL ," +
-                    "Ocupado TINYINT(1) DEFAULT 0 ," +
-                    "Palete INT DEFAULT NULL ," +
-                    "foreign key(Palete) references Palete(Identificador))";
+            String sql = "CREATE TABLE IF NOT EXISTS Robot (" +
+                    "Identificador INT NOT NULL AUTO_INCREMENT ," +
+                    "Localizacao INT NOT NULL DEFAULT 0," +
+                    "Recolhida TINYINT(1) NOT NULL ," +
+                    "Instrucao VARCHAR(100) DEFAULT NULL ," +
+                    "idPalete INT DEFAULT NULL ," +
+                    "PRIMARY KEY (Identificador));";
             stm.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -30,28 +29,23 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         }
     }
 
-    /**
-     * Implementação do padrão Singleton
-     *
-     * @return devolve a instância única desta classe
-     */
-    public static PrateleiraDAO getInstance() {
-        if (PrateleiraDAO.singleton == null) {
-            PrateleiraDAO.singleton = new PrateleiraDAO();
+
+    public static RobotDAO getInstance() {
+        if (RobotDAO.singleton == null) {
+            RobotDAO.singleton = new RobotDAO();
         }
-        return PrateleiraDAO.singleton;
+        return RobotDAO.singleton;
     }
 
     /**
      * @return número de alunos na base de dados
      */
-
     @Override
     public int size() {
         int i = 0;
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM Prateleira")) {
+             ResultSet rs = stm.executeQuery("SELECT count(*) FROM Robot")) {
             if(rs.next()) {
                 i = rs.getInt(1);
             }
@@ -80,7 +74,7 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
              ResultSet rs =
-                     stm.executeQuery("SELECT Identificador FROM Prateleira WHERE Identificador="+key)) {
+                     stm.executeQuery("SELECT Identificador FROM Robot WHERE Identificador="+key)) {
             r = rs.next();
         } catch (SQLException e) {
             // Database error!
@@ -92,53 +86,46 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
 
     @Override
     public boolean containsValue(Object value) {
-        Prateleira a = (Prateleira) value;
+        Palete a = (Palete) value;
         return this.containsKey(a.getIdentificador());
     }
 
 
     @Override
-    public Prateleira get(Object key) {
-        Prateleira t = null;
+    public Robot get(Object key) {
+        Robot a = null;
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT * FROM Prateleira WHERE Identificador='"+key+"'")) {
+             ResultSet rs = stm.executeQuery("SELECT * FROM Robot WHERE Identificador="+key)) {
             if (rs.next()) {
-                Palete s = null;
-                String sql = "SELECT * FROM Palete WHERE Identificador='"+rs.getInt("Palete")+"'";
-                try (ResultSet rsa = stm.executeQuery(sql)) {
-                    if (rsa.next()) {
-                        Boolean b = rsa.getInt("Espera") == 1;
-                        s = new Palete(rsa.getInt("Localizacao"), rsa.getString("Material"), rsa.getDouble("Peso"),
-                                rsa.getDouble("Preco"),b,rsa.getInt("Identificador"),new QrCode(rsa.getString("QrCode")));
-                    } else {
-                        // BD inconsistente!! Sala não existe - tratar com excepções.
-                    } // catch é feito no try inicial - este try serve para fechar o ResultSet automaticamente
-                    // Nota: abrir um novo ResultSet no mesmo Statement fecha o ResultSet anterior
+                if (rs.getString("Instrucao") == null) {
+                    a = new Robot(rs.getInt("Localizacao"),rs.getInt("Identificador"),false,null);
+                } else {
+                    a = new Robot(rs.getInt("Localizacao"), rs.getInt("Identificador"),rs.getInt("Recolhida") == 1 ,new Instrucao(rs.getString("Instrucao"), rs.getInt("idPalete")));
                 }
-                t = new Prateleira(rs.getInt("Localizacao"), s,(s!=null),rs.getInt("Identificador"));
             }
         } catch (SQLException e) {
-            // Database error!
             e.printStackTrace();
             throw new NullPointerException(e.getMessage());
         }
-        return t;
+        return a;
     }
 
     @Override
-    public Prateleira put(Integer key, Prateleira a) {
-        Prateleira res = null;
-        Palete p = a.getPalete();
+    public Robot put(Integer key, Robot a) {
+        Robot res = null;
+        Instrucao i = a.getInstrucao();
+        int recolhida = 0;
+        if (a.getRecolhida()) recolhida++;
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
-            if(p == null)
-            stm.executeUpdate(
-                    "INSERT INTO Prateleira VALUES ('"+key+"', '"+a.getLocalizacao()+"', '"+0+"',NULL)" +
-                            "ON DUPLICATE KEY UPDATE Ocupado = 0, Palete = NULL ");
+            if(i == null)
+                stm.executeUpdate(
+                        "INSERT INTO Robot VALUES ('"+key+"', '"+a.getLocalizacao()+"', 0 ,NULL ,NULL)" +
+                                "ON DUPLICATE KEY UPDATE Localizacao = "+a.getLocalizacao()+",Instrucao = NULL , Recolhida = 0 ,idPalete = NULL ");
             else
-                stm.executeUpdate("INSERT INTO Prateleira VALUES ('"+key+"', '"+a.getLocalizacao()+"', '"+1+"', "+p.getIdentificador()+")" +
-                            "ON DUPLICATE KEY UPDATE Ocupado = 1, Palete = "+p.getIdentificador());
+                stm.executeUpdate("INSERT INTO Robot VALUES ('"+key+"', '"+a.getLocalizacao()+"', '"+recolhida+"', '"+i.getCaminho()+"', "+i.getiDpalete()+")" +
+                        "ON DUPLICATE KEY UPDATE Localizacao = "+a.getLocalizacao()+", Instrucao = '"+i.getCaminho()+"', idPalete = "+i.getiDpalete()+", Recolhida = "+recolhida );
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -147,13 +134,12 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         return res;
     }
 
-
     @Override
-    public Prateleira remove(Object key) {
-        Prateleira t = this.get(key);
+    public Robot remove(Object key) {
+        Robot t = this.get(key);
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
-            stm.executeUpdate("DELETE FROM Prateleira WHERE Identificador='"+key+"'");
+            stm.executeUpdate("DELETE FROM Robot WHERE Identificador='"+key+"'");
         } catch (Exception e) {
             // Database error!
             e.printStackTrace();
@@ -162,9 +148,15 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         return t;
     }
 
+    /**
+     * Adicionar um conjunto de alunos à base de dados
+     *
+     * @param alunos as alunos a adicionar
+     * @throws NullPointerException Em caso de erro - deveriam ser criadas exepções do projecto
+     */
     @Override
-    public void putAll(Map<? extends Integer, ? extends Prateleira> prateleira) {
-        for(Prateleira a : prateleira.values()) {
+    public void putAll(Map<? extends Integer, ? extends Robot> robot) {
+        for(Robot a : robot.values()) {
             this.put(a.getIdentificador(), a);
         }
     }
@@ -179,7 +171,7 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
     public void clear() {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
-            stm.executeUpdate("TRUNCATE Prateleira");
+            stm.executeUpdate("TRUNCATE Robot");
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -200,11 +192,11 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
      * @return Todos as alunos da base de dados
      */
     @Override
-    public Collection<Prateleira> values() {
-        Collection<Prateleira> col = new HashSet<>();
+    public Collection<Robot> values() {
+        Collection<Robot> col = new HashSet<>();
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT Identificador FROM Prateleira")) {
+             ResultSet rs = stm.executeQuery("SELECT Identificador FROM Robot")) {
             while (rs.next()) {
                 col.add(this.get(rs.getInt("Identificador")));
             }
@@ -216,7 +208,7 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
     }
 
     @Override
-    public Set<Map.Entry<Integer, Prateleira>> entrySet() {
+    public Set<Entry<Integer, Robot>> entrySet() {
         throw new NullPointerException("public Set<Map.Entry<String,Aluno>> entrySet() not implemented!");
     }
 }
