@@ -15,8 +15,13 @@ public class SistemaLNFacade implements ISistemaLNFacade{
     private Map<Integer, Robot> robot;
     private LeitorQrCode leitorQrCode;
 
-    private static final int ZONA_ENTREGA = 12;
+    private static final int ZONA_ENTREGA = 11;
     private static final int ZONA_RECECAO = 0;
+
+    public static void main(String[] args) {
+        SistemaLNFacade s = new SistemaLNFacade();
+        System.out.println(s.robot.entrySet());
+    }
 
     public SistemaLNFacade() {
         this.localizacoes = new double[][]
@@ -100,7 +105,14 @@ public class SistemaLNFacade implements ISistemaLNFacade{
     }
 
     public void lerCodigoQr(QrCode code) throws NumberFormatException,ArrayIndexOutOfBoundsException {
-        Palete novo = this.leitorQrCode.lerCodigo(code,this.paletes.size()+1);
+        List<Palete> paletes = this.paletes.values().stream().sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
+        Palete novo;
+        if(this.paletes.isEmpty()){
+            novo = this.leitorQrCode.lerCodigo(code,1);
+        }
+        else {
+            novo = this.leitorQrCode.lerCodigo(code,paletes.get(paletes.size()-1).getIdentificador()+1);
+        }
         this.paletes.put(novo.getIdentificador(), novo);
     }
 
@@ -108,18 +120,50 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         this.robot.put(robot.size()+1, new Robot(robot.size()+1));
     }
 
-    //@TODO FAZER ESTA SHIT
-    /*public boolean fazEntregas() {
-        if (comunicaOrdemDeTransporte()) {
+    public int fazEntregas() throws PaletesIndisponiveisException, PrateleiraIndisponivelException, RobotIndisponivelException, RobotNaoTemInstrucaoException, RobotNaoRecolheuPaleteException {
+        int robot = comunicaOrdemDeTransporte();
+        notificaRecolha(robot);
+        notificaEntrega(robot);
+        return robot;
+    }
 
-            return true;
+    private int escolheRobot(int localizacao) {
+        List<Robot> robots = this.robot.values().stream().filter(a -> a.getInstrucao() == null).collect(Collectors.toList());
+        List<Map.Entry<Integer, Double>> distancias = new ArrayList<>();
+        for (Robot r : robots) {
+            String path = dijkstra(r.getLocalizacao(), localizacao);
+            String[] splited = path.split("->");
+            int[] vertices = Arrays.stream(splited).mapToInt(Integer::parseInt).toArray();
+            double distance = 0.0;
+            for (int i = 0; i < vertices.length-2; i++) {
+                distance += this.localizacoes[i][i+1];
+            }
+            distancias.add(new AbstractMap.SimpleEntry<>(r.getIdentificador(), distance));
         }
-        return false;
-    }*/
+        List<Map.Entry<Integer, Double>> ordered = distancias.stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+        return ordered.get(0).getKey();
+    }
 
-    //@TODO CENA DOS ROBOTS MAIS PERTO DA PALETE
-    //@TODO A MESMA SHIT MAS COM PRATELEIRAS
-    public void comunicaOrdemDeTransporte() throws PrateleiraIndisponivelException, RobotIndisponivelException, PaletesIndisponiveisException {
+    private int escolhePrateleira() {
+        //Lista para ver os destinos de todos os robots para n haver robots a colocar paletes nas mesmas prateleiras
+        List<Integer> destinosRobots = this.robot.values().stream().filter(a->a.getInstrucao()!=null).map(a->a.getInstrucao().getDestino()).collect(Collectors.toList());
+        List<Prateleira> prateleiras = this.prateleira.values().stream().filter(a -> !a.isOcupada() && !destinosRobots.contains(a.getLocalizacao())).collect(Collectors.toList());
+        List<Map.Entry<Integer, Double>> distancias = new ArrayList<>();
+        for (Prateleira p : prateleiras) {
+            String path = dijkstra(0, p.getLocalizacao());
+            String[] splited = path.split("->");
+            int[] vertices = Arrays.stream(splited).mapToInt(Integer::parseInt).toArray();
+            double distance = 0.0;
+            for (int i = 0; i < vertices.length-2; i++) {
+                distance += this.localizacoes[i][i+1];
+            }
+            distancias.add(new AbstractMap.SimpleEntry<>(p.getIdentificador(), distance));
+        }
+        List<Map.Entry<Integer, Double>> ordered = distancias.stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+        return ordered.get(0).getKey();
+    }
+
+    public int comunicaOrdemDeTransporte() throws PrateleiraIndisponivelException, RobotIndisponivelException, PaletesIndisponiveisException {
         List<Palete> emEspera = this.paletes.values().stream().filter(Palete::getEspera).sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
         if(!emEspera.isEmpty()){
             Palete p = emEspera.get(0);
@@ -128,12 +172,12 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 if (prateleiras.size() == 0) {
                     throw new PrateleiraIndisponivelException("\nNão Existem Prateleiras Disponiveis\n");
                 }
-                Prateleira prateleira = prateleiras.get(0);
+                Prateleira prateleira = this.prateleira.get(escolhePrateleira());
                 List<Robot> robots = this.robot.values().stream().filter(e -> e.getInstrucao() == null).collect(Collectors.toList());
                 if (robots.size() == 0) {
                     throw new RobotIndisponivelException("\nNão Existem Robots Disponiveis\n");
                 }
-                Robot robot = robots.get(0);
+                Robot robot = this.robot.get(escolheRobot(ZONA_RECECAO));
                 String res;
                 if(robot.getLocalizacao() == ZONA_RECECAO) {
                     res = dijkstra(robot.getLocalizacao(), prateleira.getLocalizacao());
@@ -148,13 +192,15 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 p.setEspera(false);
                 this.paletes.put(p.getIdentificador(), p);
                 this.robot.put(robot.getIdentificador(), robot);
+                return robot.getIdentificador();
             }
             else {
-                Prateleira prateleira = this.prateleira.values().stream().filter(e -> e.getPalete().getIdentificador() == p.getIdentificador()).collect(Collectors.toList()).get(0);
-                Robot robot = this.robot.values().stream().filter(e -> e.getInstrucao() == null).collect(Collectors.toList()).get(0);
-                if (robot == null) {
+                Prateleira prateleira = this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(e -> e.getPalete().getIdentificador() == p.getIdentificador()).collect(Collectors.toList()).get(0);
+                List<Robot> robots = this.robot.values().stream().filter(e -> e.getInstrucao() == null).collect(Collectors.toList());
+                if (robots.size() == 0) {
                     throw new RobotIndisponivelException("\nNão Existem Robots Disponiveis\n");
                 }
+                Robot robot = this.robot.get(escolheRobot(prateleira.getLocalizacao()));
                 String res;
                 if (robot.getLocalizacao() == prateleira.getLocalizacao()) {
                     res = dijkstra(robot.getLocalizacao(), ZONA_ENTREGA);
@@ -168,6 +214,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 p.setEspera(false);
                 this.paletes.put(p.getIdentificador(), p);
                 this.robot.put(robot.getIdentificador(), robot);
+                return robot.getIdentificador();
             }
         }
         else {
@@ -181,7 +228,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         if (r.getInstrucao() != null) {
             Palete p = this.paletes.get(r.getInstrucao().getiDpalete());
             if (p.getLocalizacao() != ZONA_RECECAO) {
-                Prateleira pr = this.prateleira.values().stream().filter(a -> (a.getPalete().getLocalizacao() == p.getLocalizacao())).collect(Collectors.toList()).get(0);
+                Prateleira pr = this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(a -> (a.getPalete().getLocalizacao() == p.getLocalizacao())).collect(Collectors.toList()).get(0);
                 pr.setPalete(null);
                 pr.setOcupada(false);
                 this.prateleira.put(pr.getLocalizacao(), pr);
@@ -241,5 +288,12 @@ public class SistemaLNFacade implements ISistemaLNFacade{
             res.add(s.toString());
         }
         return res;
+    }
+
+    public void requisitaPalete(int i) throws PaletesIndisponiveisException{
+        Palete p = this.paletes.get(i);
+        if(p == null) throw new PaletesIndisponiveisException("Não existe palete com identificador "+i);
+        p.setEspera(true);
+        this.paletes.put(p.getIdentificador(),p);
     }
 }

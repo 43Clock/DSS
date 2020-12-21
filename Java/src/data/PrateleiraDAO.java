@@ -5,10 +5,7 @@ import business.Prateleira;
 import business.QrCode;
 
 import java.sql.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PrateleiraDAO implements Map<Integer,Prateleira>{
     private static PrateleiraDAO singleton = null;
@@ -30,21 +27,12 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         }
     }
 
-    /**
-     * Implementação do padrão Singleton
-     *
-     * @return devolve a instância única desta classe
-     */
     public static PrateleiraDAO getInstance() {
         if (PrateleiraDAO.singleton == null) {
             PrateleiraDAO.singleton = new PrateleiraDAO();
         }
         return PrateleiraDAO.singleton;
     }
-
-    /**
-     * @return número de alunos na base de dados
-     */
 
     @Override
     public int size() {
@@ -63,16 +51,10 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         return i;
     }
 
-    /**
-     * Método que verifica se existem alunos
-     *
-     * @return true se existirem 0 alunos
-     */
     @Override
     public boolean isEmpty() {
         return this.size() == 0;
     }
-
 
     @Override
     public boolean containsKey(Object key) {
@@ -169,12 +151,6 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         }
     }
 
-    /**
-     * Apagar todos os alunos
-     *
-     * @throws NullPointerException ...
-     * @throws NullPointerException Em caso de erro - deveriam ser criadas exepções do projecto
-     */
     @Override
     public void clear() {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
@@ -187,18 +163,22 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         }
     }
 
-    /**
-     * NÃO IMPLEMENTADO!
-     * @return ainda nada!
-     */
     @Override
     public Set<Integer> keySet() {
-        throw new NullPointerException("Not implemented!");
+        Set<Integer> r = new HashSet<>();
+        try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT Identificador FROM Prateleira ")) {
+            while (rs.next()) {
+                r.add(rs.getInt("Identificador"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
+        }
+        return r;
     }
 
-    /**
-     * @return Todos as alunos da base de dados
-     */
     @Override
     public Collection<Prateleira> values() {
         Collection<Prateleira> col = new HashSet<>();
@@ -215,8 +195,18 @@ public class PrateleiraDAO implements Map<Integer,Prateleira>{
         return col;
     }
 
-    @Override
     public Set<Map.Entry<Integer, Prateleira>> entrySet() {
-        throw new NullPointerException("public Set<Map.Entry<String,Aluno>> entrySet() not implemented!");
+        Set<Entry<Integer,Prateleira>> r = new HashSet<>();
+        try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT * FROM Prateleira")) {
+            while (rs.next()) {
+                r.add(new AbstractMap.SimpleEntry<>(rs.getInt("Identificador"),this.get(rs.getInt("Identificador"))));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
+        }
+        return r;
     }
 }

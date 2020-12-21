@@ -27,7 +27,7 @@ public class Prateleira {
     }
 
     public Palete getPalete() {
-        return palete.clone();
+        return palete;
     }
 
     public boolean isOcupada() {
@@ -43,7 +43,7 @@ public class Prateleira {
     }
 
     public void setPalete(Palete palete) {
-        this.palete = palete.clone();
+        this.palete = palete;
     }
 
     public void setOcupada(boolean ocupada) {

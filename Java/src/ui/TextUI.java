@@ -43,7 +43,9 @@ public class TextUI {
                 "Comunica Ordem de Transporte",
                 "Notifica Recolha",
                 "Notifica Entrega",
-                "Listagem de Localizacoes"
+                "Faz Transporte de Paletes",
+                "Listagem de Localizacoes",
+                "Requisita Palete"
                 };
         this.menu = new Menu(opcoes);
         this.model = new SistemaLNFacade();
@@ -73,7 +75,13 @@ public class TextUI {
                     notificaEntrega();
                     break;
                 case 6:
+                    fazTransporteCompleto();
+                    break;
+                case 7:
                     listagemDeLocalizacoes();
+                    break;
+                case 8:
+                    requisitaPaletes();
                     break;
             }
         } while (menu.getOpcao()!=0); // A opção 0 é usada para sair do menu.
@@ -99,8 +107,8 @@ public class TextUI {
 
     private void comunicaOrdemTransporte() {
         try {
-            model.comunicaOrdemDeTransporte();
-            System.out.println("\nInstrucao foi atribuida a um Robot");
+            int r = model.comunicaOrdemDeTransporte();
+            System.out.println("\nInstrucao foi atribuida ao Robot "+ r);
         } catch (PrateleiraIndisponivelException | RobotIndisponivelException | PaletesIndisponiveisException e) {
             System.out.println(e.getMessage());
         }
@@ -132,10 +140,33 @@ public class TextUI {
         }
     }
 
+    public void fazTransporteCompleto() {
+        try {
+            int r = this.model.fazEntregas();
+            System.out.println("Instrucao foi atribuida ao Robot " + r);
+            System.out.println("Recolha feita com sucesso!");
+            System.out.println("Entrega feita com sucesso!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void listagemDeLocalizacoes() {
         List<String> localizacoes = this.model.listagemDeLocalizacao();
         for (String s : localizacoes) {
             System.out.println(s);
+        }
+    }
+
+    public void requisitaPaletes() {
+        try {
+            System.out.println("\nInserir Identificador da Palete:");
+            String code = scin.nextLine();
+            this.model.requisitaPalete(Integer.parseInt(code));
+        } catch (PaletesIndisponiveisException e) {
+            System.out.println(e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Nenhum Input fornecido");
         }
     }
 }

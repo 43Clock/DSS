@@ -4,10 +4,7 @@ import business.Palete;
 import business.QrCode;
 
 import java.sql.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PaleteDAO implements Map<Integer,Palete> {
     private static PaleteDAO singleton = null;
@@ -32,11 +29,6 @@ public class PaleteDAO implements Map<Integer,Palete> {
         }
     }
 
-    /**
-     * Implementação do padrão Singleton
-     *
-     * @return devolve a instância única desta classe
-     */
     public static PaleteDAO getInstance() {
         if (PaleteDAO.singleton == null) {
             PaleteDAO.singleton = new PaleteDAO();
@@ -44,9 +36,6 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return PaleteDAO.singleton;
     }
 
-    /**
-     * @return número de alunos na base de dados
-     */
     @Override
     public int size() {
         int i = 0;
@@ -64,11 +53,6 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return i;
     }
 
-    /**
-     * Método que verifica se existem alunos
-     *
-     * @return true se existirem 0 alunos
-     */
     @Override
     public boolean isEmpty() {
         return this.size() == 0;
@@ -148,12 +132,6 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return t;
     }
 
-    /**
-     * Adicionar um conjunto de alunos à base de dados
-     *
-     * @param alunos as alunos a adicionar
-     * @throws NullPointerException Em caso de erro - deveriam ser criadas exepções do projecto
-     */
     @Override
     public void putAll(Map<? extends Integer, ? extends Palete> palete) {
         for(Palete a : palete.values()) {
@@ -161,12 +139,6 @@ public class PaleteDAO implements Map<Integer,Palete> {
         }
     }
 
-    /**
-     * Apagar todos os alunos
-     *
-     * @throws NullPointerException ...
-     * @throws NullPointerException Em caso de erro - deveriam ser criadas exepções do projecto
-     */
     @Override
     public void clear() {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
@@ -179,18 +151,22 @@ public class PaleteDAO implements Map<Integer,Palete> {
         }
     }
 
-    /**
-     * NÃO IMPLEMENTADO!
-     * @return ainda nada!
-     */
     @Override
     public Set<Integer> keySet() {
-        throw new NullPointerException("Not implemented!");
+        Set<Integer> r = new HashSet<>();
+        try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT Identificador FROM Palete ")) {
+            while (rs.next()) {
+                r.add(rs.getInt("Identificador"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
+        }
+        return r;
     }
 
-    /**
-     * @return Todos as alunos da base de dados
-     */
     @Override
     public Collection<Palete> values() {
         Collection<Palete> col = new HashSet<>();
@@ -209,6 +185,17 @@ public class PaleteDAO implements Map<Integer,Palete> {
 
     @Override
     public Set<Entry<Integer, Palete>> entrySet() {
-        throw new NullPointerException("public Set<Map.Entry<String,Aluno>> entrySet() not implemented!");
+        Set<Entry<Integer,Palete>> r = new HashSet<>();
+        try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT * FROM Palete")) {
+            while (rs.next()) {
+                r.add(new AbstractMap.SimpleEntry<>(rs.getInt("Identificador"),this.get(rs.getInt("Identificador"))));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
+        }
+        return r;
     }
 }
