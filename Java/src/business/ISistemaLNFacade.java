@@ -1,6 +1,7 @@
 package business;
 
 import Exceptions.*;
+import business.Paletes.QrCode;
 
 import java.util.List;
 

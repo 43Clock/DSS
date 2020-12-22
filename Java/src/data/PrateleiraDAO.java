@@ -1,8 +1,8 @@
 package data;
 
-import business.Palete;
-import business.Prateleira;
-import business.QrCode;
+import business.Paletes.Palete;
+import business.Armazenamento.Prateleira;
+import business.Paletes.QrCode;
 
 import java.sql.*;
 import java.util.*;

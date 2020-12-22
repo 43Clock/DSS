@@ -1,6 +1,12 @@
 package business;
 
 import Exceptions.*;
+import business.Armazenamento.Prateleira;
+import business.Paletes.LeitorQrCode;
+import business.Paletes.Palete;
+import business.Paletes.QrCode;
+import business.Robot.Instrucao;
+import business.Robot.Robot;
 import data.PaleteDAO;
 import data.PrateleiraDAO;
 import data.RobotDAO;
@@ -17,12 +23,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
 
     private static final int ZONA_ENTREGA = 11;
     private static final int ZONA_RECECAO = 0;
-
-    public static void main(String[] args) {
-        SistemaLNFacade s = new SistemaLNFacade();
-        System.out.println(s.robot.entrySet());
-    }
-
+    
     public SistemaLNFacade() {
         this.localizacoes = new double[][]
                             {{0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0},

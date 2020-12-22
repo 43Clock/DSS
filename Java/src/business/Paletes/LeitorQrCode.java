@@ -1,8 +1,11 @@
-package business;
+package business.Paletes;
+
+import business.Paletes.Palete;
+import business.Paletes.QrCode;
 
 public class LeitorQrCode {
 
-    public Palete lerCodigo(QrCode code,int id) throws NumberFormatException{
+    public Palete lerCodigo(QrCode code, int id) throws NumberFormatException{
         String s = code.getCode();
         String[] parsed = s.split("/");
         String nome = parsed[0];

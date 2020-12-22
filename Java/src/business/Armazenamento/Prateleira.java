@@ -1,4 +1,6 @@
-package business;
+package business.Armazenamento;
+
+import business.Paletes.Palete;
 
 import java.util.Objects;
 

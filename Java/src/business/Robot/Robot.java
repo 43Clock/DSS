@@ -1,4 +1,4 @@
-package business;
+package business.Robot;
 
 public class Robot {
     private int localizacao;

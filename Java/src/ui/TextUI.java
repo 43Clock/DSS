@@ -8,7 +8,7 @@ package ui;
 
 import Exceptions.*;
 import business.ISistemaLNFacade;
-import business.QrCode;
+import business.Paletes.QrCode;
 import business.SistemaLNFacade;
 
 import java.util.List;

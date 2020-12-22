@@ -1,4 +1,4 @@
-package business;
+package business.Paletes;
 
 import java.util.Objects;
 
