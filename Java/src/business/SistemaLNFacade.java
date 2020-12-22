@@ -23,7 +23,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
 
     private static final int ZONA_ENTREGA = 11;
     private static final int ZONA_RECECAO = 0;
-    
+
     public SistemaLNFacade() {
         this.localizacoes = new double[][]
                             {{0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0},
@@ -56,7 +56,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return new ArrayList<>(this.robot.values());
     }
 
-    private String dijkstra(int startVertex,int endVertex) {
+    private String calculaPercurso(int startVertex, int endVertex) {
         int nVertices = this.localizacoes[0].length;
         double[] shortestDistances = new double[nVertices];
         boolean[] added = new boolean[nVertices];
@@ -108,11 +108,14 @@ public class SistemaLNFacade implements ISistemaLNFacade{
     public void lerCodigoQr(QrCode code) throws NumberFormatException,ArrayIndexOutOfBoundsException {
         List<Palete> paletes = this.paletes.values().stream().sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
         Palete novo;
+        String[] s = this.leitorQrCode.lerCodigo(code);
+        double peso = Double.parseDouble(s[1]);
+        double preco = Double.parseDouble(s[2]);
         if(this.paletes.isEmpty()){
-            novo = this.leitorQrCode.lerCodigo(code,1);
+            novo = new Palete(0, s[0], peso, preco, true, 1,code);
         }
         else {
-            novo = this.leitorQrCode.lerCodigo(code,paletes.get(paletes.size()-1).getIdentificador()+1);
+            novo = new Palete(0, s[0], peso, preco, true, paletes.get(paletes.size()-1).getIdentificador()+1,code);
         }
         this.paletes.put(novo.getIdentificador(), novo);
     }
@@ -132,7 +135,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         List<Robot> robots = this.robot.values().stream().filter(a -> a.getInstrucao() == null).collect(Collectors.toList());
         List<Map.Entry<Integer, Double>> distancias = new ArrayList<>();
         for (Robot r : robots) {
-            String path = dijkstra(r.getLocalizacao(), localizacao);
+            String path = calculaPercurso(r.getLocalizacao(), localizacao);
             String[] splited = path.split("->");
             int[] vertices = Arrays.stream(splited).mapToInt(Integer::parseInt).toArray();
             double distance = 0.0;
@@ -151,7 +154,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         List<Prateleira> prateleiras = this.prateleira.values().stream().filter(a -> !a.isOcupada() && !destinosRobots.contains(a.getLocalizacao())).collect(Collectors.toList());
         List<Map.Entry<Integer, Double>> distancias = new ArrayList<>();
         for (Prateleira p : prateleiras) {
-            String path = dijkstra(0, p.getLocalizacao());
+            String path = calculaPercurso(0, p.getLocalizacao());
             String[] splited = path.split("->");
             int[] vertices = Arrays.stream(splited).mapToInt(Integer::parseInt).toArray();
             double distance = 0.0;
@@ -164,8 +167,16 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return ordered.get(0).getKey();
     }
 
+    private List<Palete> emEspera() {
+        return this.paletes.values().stream().filter(Palete::getEspera).sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
+    }
+
+    private Prateleira getPrateleira(int palete) {
+        return this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(e -> e.getPalete().getIdentificador() == palete).collect(Collectors.toList()).get(0);
+    }
+
     public int comunicaOrdemDeTransporte() throws PrateleiraIndisponivelException, RobotIndisponivelException, PaletesIndisponiveisException {
-        List<Palete> emEspera = this.paletes.values().stream().filter(Palete::getEspera).sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
+        List<Palete> emEspera = emEspera();
         if(!emEspera.isEmpty()){
             Palete p = emEspera.get(0);
             if (p.getLocalizacao() == ZONA_RECECAO) {
@@ -181,11 +192,11 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 Robot robot = this.robot.get(escolheRobot(ZONA_RECECAO));
                 String res;
                 if(robot.getLocalizacao() == ZONA_RECECAO) {
-                    res = dijkstra(robot.getLocalizacao(), prateleira.getLocalizacao());
+                    res = calculaPercurso(robot.getLocalizacao(), prateleira.getLocalizacao());
                 }
                 else {
-                    String s1 = dijkstra(robot.getLocalizacao(),ZONA_RECECAO);
-                    String s2 = dijkstra(ZONA_RECECAO, prateleira.getLocalizacao());
+                    String s1 = calculaPercurso(robot.getLocalizacao(),ZONA_RECECAO);
+                    String s2 = calculaPercurso(ZONA_RECECAO, prateleira.getLocalizacao());
                     res = s1 + "->" + s2;
                 }
                 Instrucao i = new Instrucao(res,p.getIdentificador());
@@ -196,7 +207,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 return robot.getIdentificador();
             }
             else {
-                Prateleira prateleira = this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(e -> e.getPalete().getIdentificador() == p.getIdentificador()).collect(Collectors.toList()).get(0);
+                Prateleira prateleira = getPrateleira(p.getIdentificador());
                 List<Robot> robots = this.robot.values().stream().filter(e -> e.getInstrucao() == null).collect(Collectors.toList());
                 if (robots.size() == 0) {
                     throw new RobotIndisponivelException("\nNão Existem Robots Disponiveis\n");
@@ -204,10 +215,10 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 Robot robot = this.robot.get(escolheRobot(prateleira.getLocalizacao()));
                 String res;
                 if (robot.getLocalizacao() == prateleira.getLocalizacao()) {
-                    res = dijkstra(robot.getLocalizacao(), ZONA_ENTREGA);
+                    res = calculaPercurso(robot.getLocalizacao(), ZONA_ENTREGA);
                 } else {
-                    String s1 = dijkstra(robot.getLocalizacao(), prateleira.getLocalizacao());
-                    String s2 = dijkstra(prateleira.getLocalizacao(),ZONA_ENTREGA);
+                    String s1 = calculaPercurso(robot.getLocalizacao(), prateleira.getLocalizacao());
+                    String s2 = calculaPercurso(prateleira.getLocalizacao(),ZONA_ENTREGA);
                     res = s1 + "->" + s2;
                 }
                 Instrucao i = new Instrucao(res, p.getIdentificador());
@@ -232,7 +243,7 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 Prateleira pr = this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(a -> (a.getPalete().getLocalizacao() == p.getLocalizacao())).collect(Collectors.toList()).get(0);
                 pr.setPalete(null);
                 pr.setOcupada(false);
-                this.prateleira.put(pr.getLocalizacao(), pr);
+                this.prateleira.put(pr.getIdentificador(), pr);
             }
             r.setRecolhida(true);
             r.setLocalizacao(p.getLocalizacao());
