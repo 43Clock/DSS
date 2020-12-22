@@ -4,20 +4,16 @@ Pós-Condição: O robot recebe a instrução
 Fluxo Normal:
     1. Sistema localiza as paletes
     2. Sistema procura as prateleiras onde estão armazenadas as paletes
-    3. Sistema atualiza o nivel de ocupacao da zona de armazenamento
-    4. Sistema atualiza o nivel de ocupação das prateleiras
-    5. Sistema procura robots para transportar as paletes
-    6. Sistema calcula os percursos para os robots
-    7. Sistema cria as instruções
-    8. Sistema envia as instruções aos robots
+    3. Sistema procura robots para transportar as paletes
+    4. Sistema calcula os percursos para os robots
+    5. Sistema cria as instruções
+    6. Sistema envia as instruções aos robots
 Fluxo Alternativo 1[palete encontra-se na zona de entrada](passo 1):
     1.1. Sistema procura prateleiras para colocar palete
-    1.2. Sistema atualiza o nivel de ocupacao da zona de armazenamento
-    1.3. Sistema atualiza o nivel de ocupação da prateleira
-    1.4. Regressa a 5
-Fluxo Alternativo 2:[não existem robots disponiveis](passo 5)
-    5.1 Sistema aguarda até existir robot disponivel
-    5.2 Regressa a 6
+    1.2. Regressa a 3
+Fluxo Alternativo 2:[não existem robots disponiveis](passo 3)
+    3.1 Sistema aguarda até existir robot disponivel
+    3.2 Regressa a 4
 -------------------------------------------------------------------------------------------
 Use Case: Efetuar Requisição Material
 Pré-Condição: true
@@ -26,7 +22,7 @@ Pós-Condição1: Sistema envia instrução ao Robot
 Fluxo Normal:
     1. Servidor Produção comunica quais as paletes a requisitar
     2. Sistema valida disponibilidade das paletes
-    3. <<Include>> Sistema comunica ordem de transporte
+    3. Sistema atualiza as paletes para estado de espera
 
 Fluxo Alternativo 1:[alguma palete nao disponivel](passo 2)
     2.1 Sistema comunica as paletes que nao tem disponibilidade
@@ -39,31 +35,40 @@ Pré-Condição: Robot recolheu palete
 Pós-Condição: Sistema é notificado da recolha
 Fluxo Normal:
     1. Robot notifica Sistema.
-    2. Sistema retira palete do estado de espera
+    2. Sistema verifica a localizacao da palete 
+    3. Sistema retira palete do estado de espera
+    4. Sistema atualiza localizacao do robot
 
-Fluxo Alternativo:[falha no envio da notificação] (passo 1)
-    1.1 Robot reenvia notificação
-    1.2 Regressa a 2
+Fluxo Alternativo:[Palete esta numa prateleira] (passo 2)
+    2.1 Sistema retira palete da prateleira
+    2.2 Sistema altera o nivel de ocupação da prateleira
+    2.2 Regressa a 3
 ------------------------------------------------------------------------------------------
 Use Case: Robot notifica Sistema da Entrega da palete
 Pré-Condição: Robot descarregou palete
 Pós-Condição: Sistema é notificado da entrega da palete
 Fluxo Normal:
     1. Robot notifica Sistema.
-    2. Sistema altera estado da palete
-Fluxo Alternativo:[falha no envio da notificação] (passo 1)
-    1.1 Robot reenvia notificação
-    1.2 Regressa a 2
+    2. Sistema verifica a localizacao da palete
+    3. Sistema adiciona palete à prateleira
+    4. Sistema atualiza nivel de ocupacao da prateleira
+    5. Sistema atualiza a localização da palete
+    6. Sistema atualiza a localização do robot
+    7. Sistema remove a instrucao do robot
+Fluxo Alternativo 1:[Palete esta numa prateleira] (passo 2)
+    2.1 Sistema remove palete
+    2.2 Sistema atualiza o nivel de ocupacao do armazem  
+    2.3 Regressa a 6
+
 --------------------------------------------------------------------------------------------
-Use Case: Leitura e registo de paletes
+Use Case: Leitura de QrCodes
 Pré-Condição: Existem paletes para serem registadas
-Pós-Condição: Novo registo no Sistema
-Pós-Condição1: Sistema envia instrução ao Robot
+Pós-Condição: Palete é registada no Sistema
 Fluxo Normal:
     1. Leitor de QrCode lê codigo da palete
     2. Leitor de QrCode comunica informação da leitura ao Sistema
     3. Sistema regista palete no estado de espera
-    4. <<Include>> Sistema comunica ordem de transporte
+    4. Sistema atualiza nivel de ocupação do armazém
 Fluxo Alternativo 1[falha na Leitura](passo 1):
     1.1 Leitor de QrCode tenta ler codigo novamente
     1.2 Regressa a 2
