@@ -29,6 +29,10 @@ public class PaleteDAO implements Map<Integer,Palete> {
         }
     }
 
+    /**
+     * Implementação do padrão Singleton
+     * @return devolve a instância única desta classe
+     */
     public static PaleteDAO getInstance() {
         if (PaleteDAO.singleton == null) {
             PaleteDAO.singleton = new PaleteDAO();
@@ -36,6 +40,9 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return PaleteDAO.singleton;
     }
 
+    /**
+     * @return número de paletes na base de dados
+     */
     @Override
     public int size() {
         int i = 0;
@@ -53,12 +60,21 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return i;
     }
 
+    /**
+     * Método que verifica se existem paletes
+     * @return true se existirem 0 paletes
+     */
     @Override
     public boolean isEmpty() {
         return this.size() == 0;
     }
 
-
+    /**
+     * Método que cerifica se um identificador de palete existe na base de dados
+     * @param key id da Palete
+     * @return true se a Palete existe
+     * @throws NullPointerException Em caso de erro
+     */
     @Override
     public boolean containsKey(Object key) {
         boolean r;
@@ -68,20 +84,29 @@ public class PaleteDAO implements Map<Integer,Palete> {
                      stm.executeQuery("SELECT Identificador FROM Palete WHERE Identificador="+key)) {
             r = rs.next();
         } catch (SQLException e) {
-            // Database error!
             e.printStackTrace();
             throw new NullPointerException(e.getMessage());
         }
         return r;
     }
 
+    /**
+     * Verifica se uma palete existe na base de dados
+     * @param value Identificador da palete
+     * @return true se palete existe
+     */
     @Override
     public boolean containsValue(Object value) {
         Palete a = (Palete) value;
         return this.containsKey(a.getIdentificador());
     }
 
-
+    /**
+     * Obter uma palete, dado o seu identificador
+     * @param key identificador da palete
+     * @return palete caso exista (null noutro caso)
+     * @throws NullPointerException Em caso de erro
+     */
     @Override
     public Palete get(Object key) {
         Palete a = null;
@@ -99,6 +124,13 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return a;
     }
 
+    /**
+     * Insere uma palete na base de dados
+     * @param key Identificador da Palete
+     * @param a A palete
+     * @return Devolve o valor existente, caso exista um.
+     * @throws NullPointerException Em caso de erro;
+     */
     @Override
     public Palete put(Integer key, Palete a) {
         Palete res = null;
@@ -106,18 +138,24 @@ public class PaleteDAO implements Map<Integer,Palete> {
         if(a.getEspera()) espera++;
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
              Statement stm = conn.createStatement()) {
+            if(this.containsKey(a.getIdentificador())) res = this.get(key);
             stm.executeUpdate(
                     "INSERT INTO Palete VALUES ('"+key+"', '"+a.getMaterial()+"', '"+a.getPeso()+"', '"+a.getPreco()+"', '"+a.getLocalizacao()+"', '"
                                                     +espera+"', '"+a.getQrCode().getCode()+"')" +
                             "ON DUPLICATE KEY UPDATE Localizacao = " + a.getLocalizacao() +", Espera = " +espera);
         } catch (SQLException e) {
-            // Database error!
             e.printStackTrace();
             throw new NullPointerException(e.getMessage());
         }
         return res;
     }
 
+    /**
+     * Remover uma palete, dado o seu identificador
+     * @param key Identificador da palete a remover
+     * @return A palete removida
+     * @throws NullPointerException Em caso de erro
+     */
     @Override
     public Palete remove(Object key) {
         Palete t = this.get(key);
@@ -132,13 +170,22 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return t;
     }
 
+    /**
+     * Adicionar um conjunto de paletes à base de dados
+     * @param paletes as alunos a adicionar
+     * @throws NullPointerException Em caso de erro
+     */
     @Override
-    public void putAll(Map<? extends Integer, ? extends Palete> palete) {
-        for(Palete a : palete.values()) {
+    public void putAll(Map<? extends Integer, ? extends Palete> paletes) {
+        for(Palete a : paletes.values()) {
             this.put(a.getIdentificador(), a);
         }
     }
 
+    /**
+     * Apagar todas as paletes
+     * @throws NullPointerException Em caso de erro.
+     */
     @Override
     public void clear() {
         try (Connection conn = DriverManager.getConnection(DAOconfig.URL, DAOconfig.USERNAME, DAOconfig.PASSWORD);
@@ -151,6 +198,10 @@ public class PaleteDAO implements Map<Integer,Palete> {
         }
     }
 
+    /**
+     * Retorna o key set de todos os identificadores
+     * @return Set com todos os identificadores
+     */
     @Override
     public Set<Integer> keySet() {
         Set<Integer> r = new HashSet<>();
@@ -167,6 +218,9 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return r;
     }
 
+    /**
+     * @return Todas as paletes da base de dados
+     */
     @Override
     public Collection<Palete> values() {
         Collection<Palete> col = new HashSet<>();
@@ -183,6 +237,9 @@ public class PaleteDAO implements Map<Integer,Palete> {
         return col;
     }
 
+    /**
+     * @return Entry Set de todas as paletes
+     */
     @Override
     public Set<Entry<Integer, Palete>> entrySet() {
         Set<Entry<Integer,Palete>> r = new HashSet<>();

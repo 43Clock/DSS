@@ -44,18 +44,36 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         this.leitorQrCode = new LeitorQrCode();
     }
 
+    /**
+     * Metodo que devolve todas as paletes registadas.
+     * @return todas as paletes registadas
+     */
     public Collection<Palete> getPaletes() {
         return new ArrayList<>(this.paletes.values());
     }
 
+    /**
+     * Metodo que devolve todas as prateleiras registadas.
+     * @return todas as prateleiras registadas
+     */
     public Collection<Prateleira> getPrateleiras() {
         return new ArrayList<>(this.prateleira.values());
     }
 
+    /**
+     * Metodo que devolve todos os robots registados.
+     * @return todos os robots registados
+     */
     public Collection<Robot> getRobot() {
         return new ArrayList<>(this.robot.values());
     }
 
+    /**
+     * Método que use o algoritmos de dijkstra para calcula o caminho mas curto entre duas localizações
+     * @param startVertex Localização inicial
+     * @param endVertex Localização final
+     * @return String que contem o caminho que o robot tem de percorrer
+     */
     private String calculaPercurso(int startVertex, int endVertex) {
         int nVertices = this.localizacoes[0].length;
         double[] shortestDistances = new double[nVertices];
@@ -85,10 +103,13 @@ public class SistemaLNFacade implements ISistemaLNFacade{
                 }
             }
         }
-        return printSolution(startVertex, endVertex, parents);
+        return printSolution(endVertex, parents);
     }
 
-    private static String printSolution(int startVertex, int endVertex, int[] parents) {
+    /**
+     * Métodos auxiliar para criação do caminho mais curto
+     */
+    private static String printSolution(int endVertex, int[] parents) {
         StringBuilder s = new StringBuilder();
         printPath(endVertex, parents,s);
         s.deleteCharAt(s.length()-1);
@@ -96,6 +117,9 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return s.toString();
     }
 
+    /**
+     * Métodos auxiliar para criação do caminho mais curto
+     */
     private static void printPath(int currentVertex, int[] parents,StringBuilder s) {
         if (currentVertex == -1)
         {
@@ -105,6 +129,12 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         s.append(currentVertex).append("->");
     }
 
+    /**
+     * Método usado para criação de uma nova palete a partir da leitura de um codigo Qr.
+     * @param code CodigoQr lido
+     * @throws NumberFormatException Exeception para quando um dos parametros do QrCode está incorreto
+     * @throws ArrayIndexOutOfBoundsException Exeception para quando o QrCode não tem argumentos suficientes
+     */
     public void lerCodigoQr(QrCode code) throws NumberFormatException,ArrayIndexOutOfBoundsException {
         List<Palete> paletes = this.paletes.values().stream().sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
         Palete novo;
@@ -120,10 +150,22 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         this.paletes.put(novo.getIdentificador(), novo);
     }
 
+    /**
+     * Método que adiciona um novo robot
+     */
     public void criaRobot() {
         this.robot.put(robot.size()+1, new Robot(robot.size()+1));
     }
 
+    /**
+     * Método que faz atribuição da instrução a um robot, a recolha e a entrega de uma Palete.
+     * @return Identificador do Robot que fez a instrução
+     * @throws PaletesIndisponiveisException Exception para quando não existe nenhuma palete que precisa de ser transportada
+     * @throws PrateleiraIndisponivelException Exception para quando não existe nenhuma prateleira para armazenar as paletes
+     * @throws RobotIndisponivelException Exception para quando não existe nenhuma prateleira para armazenar as paletes
+     * @throws RobotNaoTemInstrucaoException Exception para quando o robot não tem nenhuma instrução atribuida
+     * @throws RobotNaoRecolheuPaleteException Exception para quando o robot ainda não recolheu a palete
+     */
     public int fazEntregas() throws PaletesIndisponiveisException, PrateleiraIndisponivelException, RobotIndisponivelException, RobotNaoTemInstrucaoException, RobotNaoRecolheuPaleteException {
         int robot = comunicaOrdemDeTransporte();
         notificaRecolha(robot);
@@ -131,6 +173,11 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return robot;
     }
 
+    /**
+     * Metodo que escolhe o robot mais perto de uma certa localização
+     * @param localizacao Localizacao para onde o robot tem de ir
+     * @return Identificador do robot escolhido
+     */
     private int escolheRobot(int localizacao) {
         List<Robot> robots = this.robot.values().stream().filter(a -> a.getInstrucao() == null).collect(Collectors.toList());
         List<Map.Entry<Integer, Double>> distancias = new ArrayList<>();
@@ -148,6 +195,10 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return ordered.get(0).getKey();
     }
 
+    /**
+     * Metodo que escolhe a prateleira não ocupada que esta mais perto da Zona de Receção.
+     * @return Identificador da prateleira escolhida
+     */
     private int escolhePrateleira() {
         //Lista para ver os destinos de todos os robots para n haver robots a colocar paletes nas mesmas prateleiras
         List<Integer> destinosRobots = this.robot.values().stream().filter(a->a.getInstrucao()!=null).map(a->a.getInstrucao().getDestino()).collect(Collectors.toList());
@@ -167,14 +218,30 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return ordered.get(0).getKey();
     }
 
+    /**
+      * @return Lista de todas as poletes em espera, por ordem do identificador.
+     */
     private List<Palete> emEspera() {
         return this.paletes.values().stream().filter(Palete::getEspera).sorted(Comparator.comparing(Palete::getIdentificador)).collect(Collectors.toList());
     }
 
+    /**
+     * Método que retorna a Prateleira onde está guardada uma certa palete
+     * @param palete Identificador da palete
+     * @return Prateleira onde está a guardada a palete.
+     */
     private Prateleira getPrateleira(int palete) {
         return this.prateleira.values().stream().filter(Prateleira::isOcupada).filter(e -> e.getPalete().getIdentificador() == palete).collect(Collectors.toList()).get(0);
     }
 
+    /**
+     * Metodo que atribui uma instrução a um robot, escolhendo uma palete para transportar, o robot mais proximo desta e a prateleira mais proxima disponivel,
+     * ou no caso em que é para remover a palete do armazem, escolhe apenas o robot mais proximo da palete.
+     * @return Identificador do robot ao qual foi atribuido a instrução
+     * @throws PrateleiraIndisponivelException Exception para quando não existe nenhuma prateleira para armazenar as paletes
+     * @throws RobotIndisponivelException Exception para quando não existe nenhuma prateleira para armazenar as paletes
+     * @throws PaletesIndisponiveisException Exception para quando não existe nenhuma palete que precisa de ser transportada
+     */
     public int comunicaOrdemDeTransporte() throws PrateleiraIndisponivelException, RobotIndisponivelException, PaletesIndisponiveisException {
         List<Palete> emEspera = emEspera();
         if(!emEspera.isEmpty()){
@@ -234,6 +301,12 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         }
     }
 
+    /**
+     * Metodo que faz com que um robot, caso tenha uma instrução atribuida, recolha a palete e posteriormente notifica o sistema dessa recolha.
+     * @param robot Identificador do robot a fazer a recolha
+     * @throws RobotNaoTemInstrucaoException Exception para quando o robot não tem nenhuma instrução atribuida.
+     * @throws ArrayIndexOutOfBoundsException Exception para quando é fornecido um identificador de robot que não existe
+     */
     public void notificaRecolha(int robot) throws RobotNaoTemInstrucaoException,ArrayIndexOutOfBoundsException {
         Robot r = this.robot.get(robot);
         if (robot > this.robot.size()) throw new ArrayIndexOutOfBoundsException("Não existe Robot com identificador " + robot +".");
@@ -254,6 +327,13 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         }
     }
 
+    /**
+     * Metodo que faz com que um robot, caso tenha uma instrução atribuida, entregue a palete e posteriormente notifica o sistema dessa entrega.
+     * @param robot Identificador do robot a fazer a entrega
+     * @throws RobotNaoTemInstrucaoException Exception para quando o robot não tem nenhuma instrução atribuida.
+     * @throws RobotNaoRecolheuPaleteException Exception para quando o robot ainda não recolheu a palete
+     * @throws ArrayIndexOutOfBoundsException Exception para quando é fornecido um identificador de robot que não existe
+     */
     public void notificaEntrega(int robot) throws RobotNaoTemInstrucaoException, RobotNaoRecolheuPaleteException,ArrayIndexOutOfBoundsException {
         Robot r = this.robot.get(robot);
         if (robot > this.robot.size()) throw new ArrayIndexOutOfBoundsException("Não existe Robot com identificador " + robot +".");
@@ -279,6 +359,10 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         }
     }
 
+    /**
+     * Metodo que retorna uma lista com as localizações de todos os robots, paletes e prateleiras.
+     * @return Lista de String com todas as localizações.
+     */
     public List<String> listagemDeLocalizacao() {
         List<String> res = new ArrayList<>();
         Collection<Robot> robots = this.robot.values().stream().sorted(Comparator.comparing(Robot::getIdentificador)).collect(Collectors.toList());
@@ -302,6 +386,11 @@ public class SistemaLNFacade implements ISistemaLNFacade{
         return res;
     }
 
+    /**
+     * Metodo que faz a requisição de uma palete
+     * @param i Identificador da palete a requisitar
+     * @throws PaletesIndisponiveisException Exception para o caso de não existir palete com o identificador dado
+     */
     public void requisitaPalete(int i) throws PaletesIndisponiveisException{
         Palete p = this.paletes.get(i);
         if(p == null) throw new PaletesIndisponiveisException("Não existe palete com identificador "+i);

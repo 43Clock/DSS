@@ -60,11 +60,12 @@ public class Menu {
 
         System.out.print("Opção: ");
         try {
-            op = is.nextInt();
+            String s = is.nextLine();
+            op = Integer.parseInt(s);
         }
-        catch (InputMismatchException e) { // Não foi inscrito um int
+        catch (NumberFormatException e) { // Não foi inscrito um int
+            //System.out.println("Opção Inválida!!!");
             op = -1;
-            System.out.println(e.toString());
         }
         if (op<0 || op>this.opcoes.size()) {
             System.out.println("Opção Inválida!!!");

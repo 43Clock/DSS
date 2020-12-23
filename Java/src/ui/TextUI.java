@@ -163,6 +163,7 @@ public class TextUI {
             System.out.println("\nInserir Identificador da Palete:");
             String code = scin.nextLine();
             this.model.requisitaPalete(Integer.parseInt(code));
+            System.out.println("Palete requisitada com sucesso!");
         } catch (PaletesIndisponiveisException e) {
             System.out.println(e.getMessage());
         } catch (NumberFormatException e) {

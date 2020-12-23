@@ -52,6 +52,9 @@ public class Robot {
         this.recolhida = recolhida;
     }
 
+    /**
+     * Metodo que remove a instrucao de um robot e altera a sua localização para a final presente na Instrução
+     */
     public void acabaInstrucao(){
         this.localizacao = this.instrucao.getDestino();
         this.instrucao = null;
